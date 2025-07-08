@@ -27,7 +27,7 @@ class KMeans:
 
     def recalculate_centroids(self) -> None:
         self.centroids = [
-            tuple(sum(col) / len(col) for col in zip(*self.classes[i]))
+            tuple(int(sum(col) / len(col)) for col in zip(*self.classes[i]))
             for i in range(self.n_classters)
         ]
 
@@ -35,12 +35,11 @@ class KMeans:
         old_centroids = copy.deepcopy(self.centroids)
         self.asign_to_centroid()
         self.recalculate_centroids()
-        while old_centroids == self.centroids:
+        while old_centroids != self.centroids:
             old_centroids = copy.deepcopy(self.centroids)
+            print(self.centroids)
             self.asign_to_centroid()
             self.recalculate_centroids()
-
-        print(self.classes)
 
     @staticmethod
     def _calc_distances(p1: tuple[int, ...], p2: tuple[int, ...]) -> float:
