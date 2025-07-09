@@ -1,45 +1,25 @@
 import random
-import copy
 import math
 
 
 class KMeans:
-    def __init__(self, pallete: list[tuple], n_classes: int = 4):
+    def __init__(self, pallete: list[tuple], common_colors: list[tuple]):
         self.pallete = pallete
-        self.n_classters = n_classes
-        self.centroids = self.generate_centroids()
+        self.n_classters = len(common_colors)
+        self.centroids = common_colors
         self.classes = [[] for _ in range(self.n_classters)]
 
-    def generate_centroids(self) -> list[tuple]:
-        centroids = [
-            tuple(random.randint(0, 255) for _ in range(3))
-            for _ in range(self.n_classters)
-        ]
-        return centroids
-
-    def asign_to_centroid(self) -> None:
+    def asign_to_centroid(self) -> dict[tuple, list]:
+        """
+        Asigns points in data (colors) to centroids based on distance
+        """
         for color in self.pallete:
             dist = [
                 self._calc_distances(color, self.centroids[i])
                 for i in range(self.n_classters)
             ]
             self.classes[dist.index(min(dist))].append(color)
-
-    def recalculate_centroids(self) -> None:
-        self.centroids = [
-            tuple(int(sum(col) / len(col)) for col in zip(*self.classes[i]))
-            for i in range(self.n_classters)
-        ]
-
-    def clasterize(self):
-        old_centroids = copy.deepcopy(self.centroids)
-        self.asign_to_centroid()
-        self.recalculate_centroids()
-        while old_centroids != self.centroids:
-            old_centroids = copy.deepcopy(self.centroids)
-            print(self.centroids)
-            self.asign_to_centroid()
-            self.recalculate_centroids()
+        return dict(zip(self.pallete, self.classes))
 
     @staticmethod
     def _calc_distances(p1: tuple[int, ...], p2: tuple[int, ...]) -> float:
@@ -50,9 +30,7 @@ class KMeans:
 
 if __name__ == "__main__":
     k_means = KMeans(
-        [tuple(random.randint(0, 256) for _ in range(3))
-         for _ in range(200)], 4
+        [tuple(random.randint(0, 255) for _ in range(3)) for _ in range(120)], 10
     )
-    k_means.asign_to_centroid()
-    k_means.recalculate_centroids()
     k_means.clasterize()
+    k_means.classes
