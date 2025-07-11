@@ -1,8 +1,6 @@
 # What this thing need to do
 
 - open and display images
-- have multiple color palettes
-- have ability to add custom color palettes
 - generate palettes based on image (like matugen)
 - convert images to set color palette
 - have fancy looking UI with libadvaita
@@ -11,4 +9,5 @@
 
 # What is done
 
-**NOTHING**
+- have multiple color palettes
+- have ability to add custom color palettes

@@ -1,14 +1,5 @@
 import json
-from pydantic import BaseModel
-
-
-class ImportPalette(BaseModel):
-    name: str
-    colors: list[tuple[int, int, int]]
-
-
-class ExportPalette(ImportPalette):
-    colors: list[str]
+from models import ImportPalette, ExportPalette
 
 
 def read_palete(file_path: str) -> ImportPalette:
