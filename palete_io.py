@@ -9,7 +9,7 @@ def read_palete(file_path: str) -> ImportPalette:
     name, hexes = palette_data["name"], palette_data["colors"]
 
     colors = [
-        tuple(int(hex.lstrip("#")[i: i + 2], 16) for i in (0, 2, 4)) for hex in hexes
+        list(int(hex.lstrip("#")[i: i + 2], 16) for i in (0, 2, 4)) for hex in hexes
     ]
     return ImportPalette(name=name, colors=colors)
 
