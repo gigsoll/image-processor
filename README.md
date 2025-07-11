@@ -1,9 +1,8 @@
 # What this thing need to do
 
-- open and display images
 - generate palettes based on image (like matugen)
-- convert images to set color palette
 - have fancy looking UI with libadvaita
+- support wallpaper setters like swww
 
 ---
 
@@ -11,3 +10,9 @@
 
 - have multiple color palettes
 - have ability to add custom color palettes
+- open and display images
+- convert images to set color palette
+
+---
+
+> The main problem for now is speed. I hope to improve it with next updates before starting GUI.
