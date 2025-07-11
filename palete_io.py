@@ -1,4 +1,5 @@
 import json
+from dataclasses import asdict
 from models import ImportPalette, ExportPalette
 
 
@@ -15,8 +16,8 @@ def read_palete(file_path: str) -> ImportPalette:
 
 
 def write_palete(file_path, palete: ImportPalette) -> None:
-    colors = ["#%02x%02x%02x" % color for color in palete.colors]
-    export = ExportPalette(name=palete.name, colors=colors).model_dump()
+    colors = ["#%02x%02x%02x" % tuple(color) for color in palete.colors]
+    export = asdict(ExportPalette(name=palete.name, colors=colors))
 
     with open(file_path, "w") as palette_steam:
         json.dump(export, palette_steam, indent=4)

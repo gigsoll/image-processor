@@ -8,16 +8,18 @@ from palete_io import read_palete
 
 def read_image(file_path: str) -> ImageData:
     image = cv2.imread(file_path)
+    if image is None:
+        raise FileNotFoundError("Image is wrong")
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    image = cv2.bilateralFilter(image, 9, 75, 75)
 
-    color_line = np.dstack(image.transpose(2, 0, 1).reshape(3, -1))[0]
+    color_line = image.reshape(-1, 3)
 
     Image.fromarray(color_line.reshape(
         image.shape[0], image.shape[1], 3)).show()
     return ImageData(image.shape[0], image.shape[1], color_line)
 
 
+# TODO: Improve speed of color finding
 def get_unique_colors(image: ImageData) -> ImportPalette:
     colors = image.colors
     unique_colors: ImportPalette = ImportPalette(
@@ -26,14 +28,15 @@ def get_unique_colors(image: ImageData) -> ImportPalette:
     return unique_colors
 
 
+# TODO: Reduce time complexity from O(n^2) to something more barable
 def map_palette_euclidean(
     colors: ImportPalette, palette: ImportPalette
-) -> dict[tuple[int, int, int], tuple[int, int, int]]:
-    mapping: dict[tuple[int, int, int], tuple[int, int, int]] = {}
+) -> dict[tuple[int, ...], list[int]]:
+    mapping: dict[tuple[int, ...], list[int]] = {}
 
     for color in colors.colors:
         min_distance = float("inf")
-        closest_color = None
+        closest_color = []
 
         for palette_color in palette.colors:
             distance = math.sqrt(
@@ -43,14 +46,14 @@ def map_palette_euclidean(
             )
             if distance < min_distance:
                 min_distance = distance
-                closest_color = palette_color
+                closest_color: list[int] = palette_color
 
         mapping[tuple(color)] = closest_color
 
     return mapping
 
 
-def map_image(image: ImageData, mapping: dict[tuple, tuple]) -> None:
+def map_image(image: ImageData, mapping: dict[tuple, list]) -> None:
     new_colors = np.array([mapping[tuple(color)] for color in image.colors])
     img = Image.fromarray(
         new_colors.reshape(image.height, image.width, 3).astype(np.uint8)
@@ -59,7 +62,7 @@ def map_image(image: ImageData, mapping: dict[tuple, tuple]) -> None:
 
 
 if __name__ == "__main__":
-    picture = read_image("./images/ліс.png")
+    picture = read_image("./images/ign_herakles.png")
     palette = read_palete("./palletes/catpuccin_mocha.json")
     unique = get_unique_colors(picture)
     mapping = map_palette_euclidean(unique, palette)
