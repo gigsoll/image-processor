@@ -5,7 +5,7 @@ from numpy._typing import NDArray
 @dataclass()
 class ImportPalette:
     name: str
-    colors: list[list[int]] | NDArray
+    colors: tuple[tuple[int, ...], ...] | set[tuple[int, ...]]
 
 
 @dataclass()
@@ -18,4 +18,4 @@ class ExportPalette:
 class ImageData:
     height: int
     width: int
-    colors: list[list[int]] | NDArray
+    colors: tuple[tuple[int, ...], ...]
