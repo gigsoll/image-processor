@@ -1,5 +1,4 @@
 import cv2
-import math
 from PIL import Image
 import numpy as np
 from models import ImportPalette, ImageData
@@ -60,10 +59,10 @@ def map_palette_euclidean(
         closest_color: tuple[int, ...] = (0, 0, 0)
 
         for palette_color in palette.colors:
-            distance = math.sqrt(
-                (int(color[0]) - int(palette_color[0])) ** 2
-                + (int(color[1]) - int(palette_color[1])) ** 2
-                + (int(color[2]) - int(palette_color[2])) ** 2
+            distance = (
+                ((color[0]) - (palette_color[0])) ** 2
+                + ((color[1]) - (palette_color[1])) ** 2
+                + ((color[2]) - (palette_color[2])) ** 2
             )
             if distance < min_distance:
                 min_distance = distance
