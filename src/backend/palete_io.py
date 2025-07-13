@@ -1,6 +1,6 @@
 import json
 from dataclasses import asdict
-from models import ImportPalette, ExportPalette
+from .models import ImportPalette, ExportPalette
 
 
 def read_palete(file_path: str) -> ImportPalette:
@@ -9,9 +9,9 @@ def read_palete(file_path: str) -> ImportPalette:
 
     name, hexes = palette_data["name"], palette_data["colors"]
 
-    colors = [
-        list(int(hex.lstrip("#")[i: i + 2], 16) for i in (0, 2, 4)) for hex in hexes
-    ]
+    colors = tuple(
+        tuple(int(hex.lstrip("#")[i : i + 2], 16) for i in (0, 2, 4)) for hex in hexes
+    )
     return ImportPalette(name=name, colors=colors)
 
 
@@ -21,10 +21,3 @@ def write_palete(file_path, palete: ImportPalette) -> None:
 
     with open(file_path, "w") as palette_steam:
         json.dump(export, palette_steam, indent=4)
-
-
-if __name__ == "__main__":
-    write_palete(
-        "./palletes/catpuccin_mocha.json",
-        read_palete("./palletes/catpuccin_mocha.json"),
-    )

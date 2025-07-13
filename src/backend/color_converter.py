@@ -1,9 +1,9 @@
 import cv2
 from PIL import Image
 import numpy as np
-from models import ImportPalette, ImageData
-from function_timer import function_timer
-from palete_io import read_palete
+from .models import ImportPalette, ImageData
+from .function_timer import function_timer
+from .palete_io import read_palete
 
 
 @function_timer
@@ -89,7 +89,3 @@ def main(image_path: str, palette_path: str) -> None:
     unique = get_unique_colors(picture)
     mapping = map_palette_euclidean(unique, palette)
     map_image(picture, mapping)
-
-
-if __name__ == "__main__":
-    main("../images/ліс.png", "./palletes/catpuccin_mocha.json")
