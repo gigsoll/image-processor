@@ -1,0 +1,19 @@
+[project]
+name = "image_transformer"
+version = "0.0.5"
+description = "A GTK 4.0 application to quantize any given image based on palette (like catpuccin, nord, etc) or automatically and set it as wallpaper"
+authors = [
+    {name = "Anatoliy Dudar", email = "gigsollt@gmail.com"},
+]
+dependencies = []
+requires-python = ">=3.13"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
