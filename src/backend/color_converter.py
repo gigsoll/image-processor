@@ -92,4 +92,4 @@ def main(image_path: str, palette_path: str) -> None:
 
 
 if __name__ == "__main__":
-    main("./images/ліс.png", "./palletes/catpuccin_mocha.json")
+    main("../images/ліс.png", "./palletes/catpuccin_mocha.json")
