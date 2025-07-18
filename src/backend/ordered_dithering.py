@@ -45,9 +45,13 @@ class OrdereDithering:
         b = (image[:, :, 0] > tile_map).astype(int)
         g = (image[:, :, 1] > tile_map).astype(int)
         r = (image[:, :, 2] > tile_map).astype(int)
-        bgr = np.stack((b, g, r), axis=-1)
-        colors = bgr * 255
-        cv2.imwrite("res.png", colors)
+        rgb = np.stack((r, g, b), axis=-1)
+        colors = rgb
+        return colors
+
+    def apply_basic_colors(self, colors: NDArray) -> NDArray:
+        colors = colors * 255
+        return colors
 
     @staticmethod
     def _reshape(table: NDArray, x_over, y_over) -> NDArray:
