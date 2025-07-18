@@ -1,6 +1,9 @@
+import re
 import numpy as np
 import cv2
+from numpy._typing import NDArray
 from .function_timer import function_timer
+import math
 
 
 class OrdereDithering:
@@ -30,26 +33,32 @@ class OrdereDithering:
 
     @function_timer
     def dither(self, table):
-        image = cv2.imread("./images/ign_herakles.png") / 255
+        image = cv2.imread("./images/ліс.png") / 255
         n = len(table)
-        dithered = (
-            np.array(
-                [
-                    [
-                        [
-                            int(image[i][j][0] > table[i % n][j % n]),
-                            int(image[i][j][1] > table[i % n][j % n]),
-                            int(image[i][j][2] > table[i % n][j % n]),
-                        ]
-                        for j in range(image.shape[1])
-                    ]
-                    for i in range(image.shape[0])
-                ],
-                dtype="uint8",
-            )
-            * 255
+        x_tile, y_tile = (
+            math.ceil(image.shape[0] / n),
+            math.ceil(image.shape[1] / n),
         )
-        cv2.imwrite("res.png", dithered)
+        x_over, y_over = (image.shape[0] % n, image.shape[1] % n)
+        tile_map = np.tile(table, (x_tile, y_tile))
+        tile_map = self._reshape(tile_map, x_over, y_over)
+        b = (image[:, :, 0] > tile_map).astype(int)
+        g = (image[:, :, 1] > tile_map).astype(int)
+        r = (image[:, :, 2] > tile_map).astype(int)
+        bgr = np.stack((b, g, r), axis=-1)
+        colors = bgr * 255
+        cv2.imwrite("res.png", colors)
+
+    @staticmethod
+    def _reshape(table: NDArray, x_over, y_over) -> NDArray:
+        if x_over > 0 and y_over > 0:
+            return table[:-x_over, :-y_over]
+        elif x_over > 0:
+            return table[:-x_over, :]
+        elif y_over > 0:
+            return table[:, :-y_over]
+        else:
+            return table
 
     def preprocess_table(self, table: list[list[int]]) -> list[list[float]]:
         max, n = np.amax(table), len(table)
