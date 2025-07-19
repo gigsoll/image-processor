@@ -1,5 +1,5 @@
 import sys
-from .color_converter import main
+from .image_pipeline import main
 
 image_path = sys.argv[1]
 palette_path = sys.argv[2]
