@@ -1,9 +1,10 @@
+import cv2
 from typing import Self
 from numpy._typing import NDArray
 from PIL import Image
 from .function_timer import function_timer
-import cv2
 from .palette_quantizer import PaletteRemaper
+from .ordered_dithering import OrdereDithering
 
 
 class ImagePipeline:
@@ -28,7 +29,8 @@ class ImagePipeline:
 
     @function_timer
     def dither_basic(self, grid_size: int) -> Self:
-        print(grid_size)
+        od = OrdereDithering(grid_size, self.image)
+        self.image = od.apply_basic_colors()
         return self
 
     def write(self, path: str) -> None:
