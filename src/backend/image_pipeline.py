@@ -12,7 +12,6 @@ class ImagePipeline:
         image = cv2.imread(image_path)
         if image is None:
             raise FileNotFoundError("Image is wrong")
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         self.image: NDArray = image
 
@@ -26,6 +25,14 @@ class ImagePipeline:
         new_image = cv2.fastNlMeansDenoisingColored(self.image, None, 10, 10, 7, 21)
         self.image = new_image
         return self
+
+    @function_timer
+    def dither_basic(self, grid_size: int) -> Self:
+        print(grid_size)
+        return self
+
+    def write(self, path: str) -> None:
+        cv2.imwrite(path, self.image)
 
 
 @function_timer

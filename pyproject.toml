@@ -5,7 +5,7 @@ description = "A GTK 4.0 application to quantize any given image based on palett
 authors = [
     {name = "Anatoliy Dudar", email = "gigsollt@gmail.com"},
 ]
-dependencies = ["numpy>=2.3.1", "opencv-python>=4.11.0.86", "PyGObject>=3.52.3", "pycairo>=1.28.0", "pillow>=11.3.0", "pygobject-stubs>=2.13.0", "matplotlib>=3.10.3"]
+dependencies = ["numpy>=2.3.1", "opencv-python>=4.11.0.86", "PyGObject>=3.52.3", "pycairo>=1.28.0", "pillow>=11.3.0", "pygobject-stubs>=2.13.0", "matplotlib>=3.10.3", "click>=8.2.1"]
 requires-python = ">=3.13"
 readme = "README.md"
 license = {text = "MIT"}

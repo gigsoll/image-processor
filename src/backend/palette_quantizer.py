@@ -1,3 +1,4 @@
+import cv2
 from .models import ImportPalette, ExportPalette
 from numpy._typing import NDArray
 from dataclasses import asdict
@@ -7,7 +8,7 @@ import numpy as np
 
 class PaletteRemaper:
     def __init__(self, image: NDArray, palette_path: str) -> None:
-        self.image = image
+        self.image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         self.palette = self.read_palete(palette_path)
 
     def _extract_unique_colors(self, image: NDArray) -> ImportPalette:
@@ -82,6 +83,7 @@ class PaletteRemaper:
 
         # Apply mapping to image
         self.image = self._apply_color_mapping(self.image, mapping)
+        self.image = cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR)
         return self.image
 
     def read_palete(self, file_path: str) -> ImportPalette:
