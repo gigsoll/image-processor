@@ -28,8 +28,7 @@ class OrdereDithering:
                 [63, 31, 55, 23, 61, 29, 53, 21],
             ],
         }
-        self.table: list[list[float]] = self._preprocess_table(
-            table_map[table_size])
+        self.table: list[list[float]] = self._preprocess_table(table_map[table_size])
         self.image: NDArray = image
 
     @function_timer
@@ -40,8 +39,7 @@ class OrdereDithering:
             math.ceil(image.shape[0] / n),
             math.ceil(image.shape[1] / n),
         )
-        x_over, y_over = (
-            x_tile * n - image.shape[0], y_tile * n - image.shape[1])
+        x_over, y_over = (x_tile * n - image.shape[0], y_tile * n - image.shape[1])
         tile_map = np.tile(self.table, (x_tile, y_tile))
         tile_map = self._reshape(tile_map, x_over, y_over)
         b = (image[:, :, 0] > tile_map).astype(int)
@@ -52,6 +50,27 @@ class OrdereDithering:
 
     def apply_basic_colors(self) -> NDArray:
         colors = self._dither() * 255
+        return colors
+
+    def apply_color_palette(self) -> NDArray:
+        colors = self._dither()
+        palette = {
+            (0, 0, 0): [33, 32, 29],
+            (0, 0, 1): [136, 133, 69],
+            (0, 1, 0): [106, 157, 104],
+            (0, 1, 1): [38, 187, 184],
+            (1, 0, 0): [29, 36, 204],
+            (1, 0, 1): [134, 98, 177],
+            (1, 1, 0): [33, 153, 215],
+            (1, 1, 1): [199, 241, 251],
+        }
+        for key, value in palette.items():
+            keys = np.array(key)
+            mask = np.all(colors == keys, axis=-1)
+            indexes = np.where(mask)
+            colors[indexes] = value
+            print(indexes[0])
+
         return colors
 
     @staticmethod
@@ -68,8 +87,7 @@ class OrdereDithering:
     def _preprocess_table(self, table: list[list[int]]) -> list[list[float]]:
         max, n = np.amax(table), len(table)
         result: list[list[float]] = [
-            [float(table[i][j] / n**2 - (0.5 * 1 / max))
-             for i in range(len(table))]
+            [float(table[i][j] / n**2 - (0.5 * 1 / max)) for i in range(len(table))]
             for j in range(len(table[0]))
         ]
         return result
