@@ -1,106 +1,79 @@
 import cv2
-from .models import ImportPalette, ExportPalette
-from numpy._typing import NDArray
-from dataclasses import asdict
-import json
+import math
 import numpy as np
+from numpy._typing import NDArray
+
+from backend.function_timer import function_timer
+from backend.models import Palette
 
 
 class PaletteRemaper:
     def __init__(self, image: NDArray, palette_path: str) -> None:
-        self.image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        self.palette = self.read_palete(palette_path)
+        self.image: NDArray = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        self.colors = self._pal2cols(palette_path)
 
-    def _extract_unique_colors(self, image: NDArray) -> ImportPalette:
-        """Extract unique colors from image"""
-        colors_1d = image.reshape(-1, 3)
-        tuple_line: tuple[tuple[int, ...], ...] = tuple(
-            map(lambda row: (int(row[0]), int(row[1]), int(row[2])), colors_1d)
+    @staticmethod
+    def _pal2cols(path: str) -> list[list[int]]:
+        palette: Palette = Palette.read(path)
+        colors: list[list[int]] = palette.additional
+        color_names = [
+            "black",
+            "red",
+            "green",
+            "blue",
+            "yellow",
+            "magenta",
+            "cyan",
+            "white",
+        ]
+        colors.extend([getattr(palette, color) for color in color_names])
+        return colors
+
+    @function_timer
+    def scale_down(self) -> NDArray:
+        MIN_DIM1 = 1600
+        MIN_DIM2 = 900
+        shape = self.image.shape[0:2]
+        reshape_area, image_area = MIN_DIM1 * MIN_DIM2, shape[0] * shape[1]
+        scale_factor: float = 1
+        if image_area > reshape_area:
+            scale_factor = round(image_area / reshape_area, 3)
+        scaled_down: NDArray = cv2.resize(
+            self.image, tuple(math.floor(d / scale_factor) for d in shape)
         )
-        return ImportPalette(name="unique_colors", colors=set(tuple_line))
+        return scaled_down
 
-    def _find_closest_color(
-        self, color: tuple[int, ...], palette_colors: tuple[tuple[int, ...], ...]
-    ) -> tuple[int, ...]:
-        """
-        Find the closest color to each part of the pallette using
-        euclidian distance
-        """
-        min_distance = float("inf")
-        closest_color: tuple[int, ...] = (0, 0, 0)
+    def _get_closest_color(
+        self, color: list[int], colors_list: list[list[int]]
+    ) -> list[int]:
+        color_array = np.array(color, dtype=np.float64)
+        colors_array = np.array(colors_list, dtype=np.float64)
 
-        for palette_color in palette_colors:
-            distance = (
-                ((color[0]) - (palette_color[0])) ** 2
-                + ((color[1]) - (palette_color[1])) ** 2
-                + ((color[2]) - (palette_color[2])) ** 2
-            )
-            if distance < min_distance:
-                min_distance = distance
-                closest_color: tuple[int, ...] = palette_color
+        distances = np.sum((colors_array - color_array) ** 2, axis=1)
+        closest_id = np.argmin(distances)
 
-        return closest_color
+        return colors_list[closest_id]
 
-    def _create_color_mapping(
-        self, unique_colors: ImportPalette
-    ) -> dict[tuple[int, ...], tuple[int, ...]]:
-        """
-        Create mapping dictionary from unique colors to palette colors
-        """
-        mapping: dict[tuple[int, ...], tuple[int, ...]] = {}
+    @function_timer
+    def create_mapping(
+        self, un_cols: list[list[int]], pal_cols: list[list[int]]
+    ) -> dict[tuple[int, ...], list[int]]:
+        keys: list[tuple[int, ...]] = [tuple(item) for item in un_cols]
+        closest: list[list[int]] = [
+            self._get_closest_color(cur, pal_cols) for cur in un_cols
+        ]
+        return dict(zip(keys, closest))
 
-        for color in unique_colors.colors:
-            assert isinstance(self.palette.colors, tuple)
-            mapping[color] = self._find_closest_color(color, self.palette.colors)
-
-        return mapping
-
-    def _apply_color_mapping(
-        self, image: NDArray, mapping: dict[tuple[int, ...], tuple[int, ...]]
-    ) -> NDArray:
-        """
-        Applies mapping to the image
-        """
-        colors_1d = image.reshape(-1, 3)
+    @function_timer
+    def map_to_colors(self):
+        resized = self.image.reshape(-1, 3)
+        unique = np.unique(resized, axis=0)
+        mapping = self.create_mapping(unique, self.colors)
+        colors_1d = self.image.reshape(-1, 3)
         tuple_line: tuple[tuple[int, ...], ...] = tuple(
             map(lambda row: (int(row[0]), int(row[1]), int(row[2])), colors_1d)
         )
 
         mapped = np.array([mapping[color] for color in tuple_line], dtype="uint8")
-        dim = image.shape
-        return mapped.reshape(dim)
-
-    def remap_to_existing_palette(self) -> NDArray:
-        """
-        Selects unique colors and map them to a color from palette
-        based on euclidian distance between unique colors and palette
-        """
-        # Extract unique colors from image
-        unique_colors = self._extract_unique_colors(self.image)
-
-        # Create mapping from unique colors to palette colors
-        mapping = self._create_color_mapping(unique_colors)
-
-        # Apply mapping to image
-        self.image = self._apply_color_mapping(self.image, mapping)
-        self.image = cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR)
-        return self.image
-
-    def read_palete(self, file_path: str) -> ImportPalette:
-        with open(file_path, "r") as palettte_file:
-            palette_data = json.load(palettte_file)
-
-        name, hexes = palette_data["name"], palette_data["colors"]
-
-        colors = tuple(
-            tuple(int(hex.lstrip("#")[i : i + 2], 16) for i in (0, 2, 4))
-            for hex in hexes
-        )
-        return ImportPalette(name=name, colors=colors)
-
-    def write_palete(self, file_path, palete: ImportPalette) -> None:
-        colors = ["#%02x%02x%02x" % tuple(color) for color in palete.colors]
-        export = asdict(ExportPalette(name=palete.name, colors=colors))
-
-        with open(file_path, "w") as palette_steam:
-            json.dump(export, palette_steam, indent=4)
+        dim = self.image.shape
+        return cv2.cvtColor(mapped.reshape(dim), cv2.COLOR_RGB2BGR)

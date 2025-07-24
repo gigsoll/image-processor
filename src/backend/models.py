@@ -83,11 +83,5 @@ class Palette:
     def read(path: str) -> "Palette":
         with open(path, "r") as ds:
             data = json.load(ds)
-        return Palette(**data)
-
-
-@dataclass()
-class ImageData:
-    height: int
-    width: int
-    colors: tuple[tuple[int, ...], ...]
+        data = [data[key] for key in data.keys()]
+        return Palette.factory(*data)
