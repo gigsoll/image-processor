@@ -1,76 +1,83 @@
 from dataclasses import dataclass, field, asdict
+from copy import copy
 import json
 import re
-from typing import overload
+from typing import Self
 
 
 @dataclass()
 class Palette:
     name: str
-    black: list[int] | str = field(default_factory=list)
-    red: list[int] | str = field(default_factory=list)
-    green: list[int] | str = field(default_factory=list)
-    yellow: list[int] | str = field(default_factory=list)
-    blue: list[int] | str = field(default_factory=list)
-    magenta: list[int] | str = field(default_factory=list)
-    cyan: list[int] | str = field(default_factory=list)
-    white: list[int] | str = field(default_factory=list)
+    black: list[int] = field(default_factory=list)
+    red: list[int] = field(default_factory=list)
+    green: list[int] = field(default_factory=list)
+    yellow: list[int] = field(default_factory=list)
+    blue: list[int] = field(default_factory=list)
+    magenta: list[int] = field(default_factory=list)
+    cyan: list[int] = field(default_factory=list)
+    white: list[int] = field(default_factory=list)
     additional: list[list[int]] = field(default_factory=list)
 
-    def __post_init__(self) -> None:
-        self.black = self._color2rgb(self.black)
-        self.red = self._color2rgb(self.red)
-        self.green = self._color2rgb(self.green)
-        self.yellow = self._color2rgb(self.yellow)
-        self.blue = self._color2rgb(self.blue)
-        self.magenta = self._color2rgb(self.magenta)
-        self.cyan = self._color2rgb(self.cyan)
-        self.white = self._color2rgb(self.white)
-        self.additional = [self._color2rgb(color) for color in self.additional]
+    @classmethod
+    def factory(
+        cls,
+        name: str,
+        black: str,
+        red: str,
+        green: str,
+        yellow: str,
+        blue: str,
+        magenta: str,
+        cyan: str,
+        white: str,
+        additional: list[str] | None = None,
+    ) -> Self:
+        if additional is None:
+            additional = []
+        return cls(
+            name,
+            cls._color2rgb(black),
+            cls._color2rgb(red),
+            cls._color2rgb(green),
+            cls._color2rgb(yellow),
+            cls._color2rgb(blue),
+            cls._color2rgb(magenta),
+            cls._color2rgb(cyan),
+            cls._color2rgb(white),
+            [cls._color2rgb(color) for color in additional],
+        )
 
-    @overload
     @staticmethod
-    def _color2rgb(color: str) -> list[int]: ...
-
-    @overload
-    @staticmethod
-    def _color2rgb(color: list[int]) -> list[int]: ...
-
-    @staticmethod
-    def _color2rgb(color: str | list[int]) -> list[int]:
-        if isinstance(color, list):
-            if len(color) not in [0, 3]:
-                raise ValueError("Number of channels should be 3")
-            for channel in color:
-                if not isinstance(channel, int) or not (0 <= channel < 256):
-                    raise ValueError(
-                        "channel value should be a number in range [0, 255]"
-                    )
-            return color
+    def _color2rgb(color: str) -> list[int]:
         if color == "":
             return []
         match = re.match(r"#(?:[0-9a-fA-F]{3}){2}", color)
         if match is None:
             raise ValueError("Incorrect hex, should be #123456")
-        color = list(int(match.group(0).lstrip("#")[i : i + 2], 16) for i in (0, 2, 4))
-        return color
+        result = list(int(match.group(0).lstrip(
+            "#")[i: i + 2], 16) for i in (0, 2, 4))
+        return result
 
     @staticmethod
     def _color2hex(color: list[int]) -> str:
         if len(color) != 3:
             return ""
+        for channel in color:
+            if not isinstance(channel, int) or not (0 <= channel < 256):
+                raise ValueError
         return "#%02x%02x%02x" % tuple(color)
 
     def write(self, path: str) -> None:
         self_dict = asdict(self)
+        res_dict = copy(self_dict)
         for key, value in self_dict.items():
             if key not in ["name", "additional"]:
-                self_dict[key] = self._color2hex(value)
+                res_dict[key] = self._color2hex(value)
             if key == "additional":
-                self_dict[key] = [self._color2hex(color) for color in value]
+                res_dict[key] = [self._color2hex(color) for color in value]
 
         with open(path, "w") as ds:
-            json.dump(self_dict, ds, indent=4)
+            json.dump(res_dict, ds, indent=4)
 
     @staticmethod
     def read(path: str) -> "Palette":
