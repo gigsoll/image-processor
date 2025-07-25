@@ -19,12 +19,12 @@ class ImagePipeline:
     def remap_to_existing_palette(self, palette_path: str) -> Self:
         remaper = PaletteRemaper(self.image, palette_path)
         self.image = remaper.map_to_colors()
+        self.image = cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR)
         return self
 
     @function_timer
     def denoice(self) -> Self:
-        new_image = cv2.fastNlMeansDenoisingColored(
-            self.image, None, 10, 10, 7, 21)
+        new_image = cv2.fastNlMeansDenoisingColored(self.image, None, 10, 10, 7, 21)
         self.image = new_image
         return self
 
@@ -40,6 +40,5 @@ class ImagePipeline:
 
 @function_timer
 def main(image_path: str, palette_path: str) -> None:
-    image = ImagePipeline(image_path).denoice(
-    ).remap_to_existing_palette(palette_path)
+    image = ImagePipeline(image_path).denoice().remap_to_existing_palette(palette_path)
     Image.fromarray(image.image).show()

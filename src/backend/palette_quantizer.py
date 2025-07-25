@@ -1,7 +1,8 @@
+from enum import unique
 import cv2
-import math
 import numpy as np
 from numpy._typing import NDArray
+from itertools import permutations, product
 
 from backend.function_timer import function_timer
 from backend.models import Palette
@@ -29,20 +30,6 @@ class PaletteRemaper:
         colors.extend([getattr(palette, color) for color in color_names])
         return colors
 
-    @function_timer
-    def scale_down(self) -> NDArray:
-        MIN_DIM1 = 1600
-        MIN_DIM2 = 900
-        shape = self.image.shape[0:2]
-        reshape_area, image_area = MIN_DIM1 * MIN_DIM2, shape[0] * shape[1]
-        scale_factor: float = 1
-        if image_area > reshape_area:
-            scale_factor = round(image_area / reshape_area, 3)
-        scaled_down: NDArray = cv2.resize(
-            self.image, tuple(math.floor(d / scale_factor) for d in shape)
-        )
-        return scaled_down
-
     def _get_closest_color(
         self, color: list[int], colors_list: list[list[int]]
     ) -> list[int]:
@@ -53,6 +40,10 @@ class PaletteRemaper:
         closest_id = np.argmin(distances)
 
         return colors_list[closest_id]
+
+    def quantize(self, div: int) -> NDArray:
+        result = self.image // div * div + div // 2
+        return result
 
     @function_timer
     def create_mapping(
@@ -66,14 +57,16 @@ class PaletteRemaper:
 
     @function_timer
     def map_to_colors(self):
-        resized = self.image.reshape(-1, 3)
-        unique = np.unique(resized, axis=0)
-        mapping = self.create_mapping(unique, self.colors)
-        colors_1d = self.image.reshape(-1, 3)
-        tuple_line: tuple[tuple[int, ...], ...] = tuple(
-            map(lambda row: (int(row[0]), int(row[1]), int(row[2])), colors_1d)
+        DIVISIOTR = 86  # to get 64 unique colors
+        quantized = self.quantize(DIVISIOTR)
+        unique_channel_values = set(
+            [c // DIVISIOTR * DIVISIOTR + DIVISIOTR // 2 for c in range(0, 256)]
         )
-
-        mapped = np.array([mapping[color] for color in tuple_line], dtype="uint8")
-        dim = self.image.shape
-        return cv2.cvtColor(mapped.reshape(dim), cv2.COLOR_RGB2BGR)
+        unique_colors = list(product(unique_channel_values, repeat=3))
+        mapping = self.create_mapping(unique_colors, self.colors)
+        for key, value in mapping.items():
+            key = np.array(key)
+            mask = np.all(quantized == key, axis=-1)
+            idx = np.where(mask)
+            quantized[idx] = value
+        return quantized
