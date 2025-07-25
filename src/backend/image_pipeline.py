@@ -22,13 +22,18 @@ class ImagePipeline:
         self.image = cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR)
         return self
 
-    @function_timer
+    def quantize(self) -> Self:
+        self.image = cv2.cvtColor(
+            PaletteRemaper.quantize(self.image, 86), cv2.COLOR_RGB2BGR
+        )
+        return self
+
     def denoice(self) -> Self:
-        new_image = cv2.fastNlMeansDenoisingColored(self.image, None, 10, 10, 7, 21)
+        new_image = cv2.fastNlMeansDenoisingColored(
+            self.image, None, 10, 10, 7, 21)
         self.image = new_image
         return self
 
-    @function_timer
     def dither_basic(self, grid_size: int) -> Self:
         od = OrdereDithering(grid_size, self.image)
         self.image = od.apply_basic_colors()
@@ -40,5 +45,6 @@ class ImagePipeline:
 
 @function_timer
 def main(image_path: str, palette_path: str) -> None:
-    image = ImagePipeline(image_path).denoice().remap_to_existing_palette(palette_path)
+    image = ImagePipeline(image_path).denoice(
+    ).remap_to_existing_palette(palette_path)
     Image.fromarray(image.image).show()

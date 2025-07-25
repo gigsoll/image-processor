@@ -1,4 +1,3 @@
-from enum import unique
 import cv2
 import numpy as np
 from numpy._typing import NDArray
@@ -41,8 +40,9 @@ class PaletteRemaper:
 
         return colors_list[closest_id]
 
-    def quantize(self, div: int) -> NDArray:
-        result = self.image // div * div + div // 2
+    @staticmethod
+    def quantize(image: NDArray, div: int) -> NDArray:
+        result = image // div * div + div // 2
         return result
 
     @function_timer
@@ -58,9 +58,10 @@ class PaletteRemaper:
     @function_timer
     def map_to_colors(self):
         DIVISIOTR = 86  # to get 64 unique colors
-        quantized = self.quantize(DIVISIOTR)
+        quantized = self.quantize(self.image, DIVISIOTR)
         unique_channel_values = set(
-            [c // DIVISIOTR * DIVISIOTR + DIVISIOTR // 2 for c in range(0, 256)]
+            [c // DIVISIOTR * DIVISIOTR +
+                DIVISIOTR // 2 for c in range(0, 256)]
         )
         unique_colors = list(product(unique_channel_values, repeat=3))
         mapping = self.create_mapping(unique_colors, self.colors)
