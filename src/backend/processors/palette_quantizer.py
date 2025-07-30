@@ -1,10 +1,10 @@
 import cv2
 import numpy as np
 from numpy._typing import NDArray
-from itertools import permutations, product
+from itertools import product
 
-from backend.function_timer import function_timer
-from backend.models import Palette
+from backend.helpers.function_timer import function_timer
+from backend.models.palette import Palette
 
 
 class PaletteRemaper:
@@ -60,8 +60,7 @@ class PaletteRemaper:
         DIVISIOTR = 86  # to get 64 unique colors
         quantized = self.quantize(self.image, DIVISIOTR)
         unique_channel_values = set(
-            [c // DIVISIOTR * DIVISIOTR +
-                DIVISIOTR // 2 for c in range(0, 256)]
+            [c // DIVISIOTR * DIVISIOTR + DIVISIOTR // 2 for c in range(0, 256)]
         )
         unique_colors = list(product(unique_channel_values, repeat=3))
         mapping = self.create_mapping(unique_colors, self.colors)

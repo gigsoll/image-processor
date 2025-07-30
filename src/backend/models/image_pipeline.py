@@ -2,9 +2,9 @@ import cv2
 from typing import Self
 from numpy._typing import NDArray
 from PIL import Image
-from .function_timer import function_timer
-from .palette_quantizer import PaletteRemaper
-from .ordered_dithering import OrdereDithering
+from backend.helpers.function_timer import function_timer
+from backend.processors.palette_quantizer import PaletteRemaper
+from backend.processors.ordered_dithering import OrdereDithering
 
 
 class ImagePipeline:
@@ -29,8 +29,7 @@ class ImagePipeline:
         return self
 
     def denoice(self) -> Self:
-        new_image = cv2.fastNlMeansDenoisingColored(
-            self.image, None, 10, 10, 7, 21)
+        new_image = cv2.fastNlMeansDenoisingColored(self.image, None, 10, 10, 7, 21)
         self.image = new_image
         return self
 
@@ -45,6 +44,5 @@ class ImagePipeline:
 
 @function_timer
 def main(image_path: str, palette_path: str) -> None:
-    image = ImagePipeline(image_path).denoice(
-    ).remap_to_existing_palette(palette_path)
+    image = ImagePipeline(image_path).denoice().remap_to_existing_palette(palette_path)
     Image.fromarray(image.image).show()

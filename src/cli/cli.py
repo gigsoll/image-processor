@@ -1,7 +1,7 @@
 import sys
 import click
 
-from backend.image_pipeline import ImagePipeline
+from backend.models.image_pipeline import ImagePipeline
 
 
 @click.command()

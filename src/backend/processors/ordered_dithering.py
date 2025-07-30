@@ -1,6 +1,6 @@
 import numpy as np
 from numpy._typing import NDArray
-from .function_timer import function_timer
+from backend.helpers.function_timer import function_timer
 import math
 
 
