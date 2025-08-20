@@ -1,0 +1,4 @@
+palette_dir = "default"  #  either config/palettes or specified
+default_output_dir = "current"  # either current or some specific dir
+quantize_n_colors = 27  # number of colors of quantization, can be 8, 27 or 64
+dither_grid_size = 8  # can be either 2, 4 or 8
