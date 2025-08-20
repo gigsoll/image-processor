@@ -31,6 +31,9 @@ def cli(ctx, imagepath: str, config: str):
     help="size of the grid for dithering, avalible sizes are: 2, 4, 8",
 )
 def dither(ctx, basic: bool, palette: str, grid_size: int):
+    """
+    dither image, reducing number of colors to 8 with pattern
+    """
     pipeline: ImagePipeline = ctx.obj["PIPELINE"]
     config: Config = ctx.obj["CONFIG"]
 
@@ -67,6 +70,9 @@ def dither(ctx, basic: bool, palette: str, grid_size: int):
 )
 @click.option("--n-colors", "-n", type=int, help="number of colors in resulting image")
 def quantize(ctx, basic: bool, palette: str, n_colors: int):
+    """
+    basically reduce number of colors according to a pallete or number of colors
+    """
     pipeline: ImagePipeline = ctx.obj["PIPELINE"]
     config: Config = ctx.obj["CONFIG"]
 
