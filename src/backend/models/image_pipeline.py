@@ -14,6 +14,7 @@ class ImagePipeline:
         if image is None:
             raise FileNotFoundError("Image is wrong")
 
+        self.in_path = image_path
         self.image: NDArray = image
 
     def remap_to_existing_palette(self, palette_path: str) -> Self:
@@ -22,10 +23,17 @@ class ImagePipeline:
         self.image = cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR)
         return self
 
-    def quantize(self) -> Self:
+    def quantize(self, n_colors) -> Self:
+        allowed_colors: list[int] = [8, 27, 64]
+        n_div_map: dict[int, int] = {8: 128, 27: 86, 64: 64}
+        if n_colors not in allowed_colors:
+            raise ValueError(f"Wrong number of colors, should be in {allowed_colors}")
+        div = n_div_map[n_colors]
         self.image = cv2.cvtColor(
-            PaletteRemaper.quantize(self.image, 86), cv2.COLOR_RGB2BGR
+            PaletteRemaper.quantize(self.image, div), cv2.COLOR_RGB2BGR
         )
+        self.image = cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR)
+
         return self
 
     def denoice(self) -> Self:
@@ -36,6 +44,11 @@ class ImagePipeline:
     def dither_basic(self, grid_size: int) -> Self:
         od = OrdereDithering(grid_size, self.image)
         self.image = od.apply_basic_colors()
+        return self
+
+    def dither_palette(self, grid_size: int, palette_path: str) -> Self:
+        od = OrdereDithering(grid_size, self.image)
+        self.image = od.apply_color_palette(palette_path)
         return self
 
     def write(self, path: str) -> None:

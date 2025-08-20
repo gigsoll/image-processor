@@ -2,6 +2,7 @@ import numpy as np
 from numpy._typing import NDArray
 from backend.helpers.function_timer import function_timer
 import math
+from backend.models.palette import Palette
 
 
 class OrdereDithering:
@@ -52,24 +53,29 @@ class OrdereDithering:
         colors = self._dither() * 255
         return colors
 
-    def apply_color_palette(self) -> NDArray:
+    def apply_color_palette(self, palette_path: str) -> NDArray:
         colors = self._dither()
-        palette = {
-            (0, 0, 0): [33, 32, 29],
-            (0, 0, 1): [136, 133, 69],
-            (0, 1, 0): [106, 157, 104],
-            (0, 1, 1): [38, 187, 184],
-            (1, 0, 0): [29, 36, 204],
-            (1, 0, 1): [134, 98, 177],
-            (1, 1, 0): [33, 153, 215],
-            (1, 1, 1): [199, 241, 251],
+        palette = Palette.read(palette_path)
+
+        def reverse(rgb: list[int]) -> list[int]:
+            return list(reversed(rgb))
+
+        processed = {
+            (0, 0, 0): reverse(palette.black),
+            (0, 0, 1): reverse(palette.red),
+            (0, 1, 0): reverse(palette.green),
+            (0, 1, 1): reverse(palette.yellow),
+            (1, 0, 0): reverse(palette.blue),
+            (1, 0, 1): reverse(palette.magenta),
+            (1, 1, 0): reverse(palette.cyan),
+            (1, 1, 1): reverse(palette.white),
         }
-        for key, value in palette.items():
+
+        for key, value in processed.items():
             keys = np.array(key)
             mask = np.all(colors == keys, axis=-1)
             indexes = np.where(mask)
             colors[indexes] = value
-            print(indexes[0])
 
         return colors
 

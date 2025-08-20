@@ -57,7 +57,7 @@ class PaletteRemaper:
 
     @function_timer
     def map_to_colors(self):
-        DIVISIOTR = 86  # to get 64 unique colors
+        DIVISIOTR = 86  # to get 27 unique colors
         quantized = self.quantize(self.image, DIVISIOTR)
         unique_channel_values = set(
             [c // DIVISIOTR * DIVISIOTR + DIVISIOTR // 2 for c in range(0, 256)]
