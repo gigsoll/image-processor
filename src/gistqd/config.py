@@ -13,7 +13,11 @@ class Config:
     dither_grid_size: str
 
     def __init__(self, config_path: str | None):
-        config = self.read_config(config_path)
+        try:
+            config = self.read_config(config_path)
+        except FileNotFoundError:
+            self._handle_missing_config()
+            config = self.read_config(config_path)
         try:
             self.palette_dir = config["palette_dir"]
             self.default_output_dir = config["default_output_dir"]
@@ -31,14 +35,20 @@ class Config:
 
         return config_content
 
-    @staticmethod
-    def _handle_default_config() -> str:
+    def _handle_default_config(self) -> str:
         platform_dirs = PlatformDirs("gistqd", "gigsoll")
         config_dir = platform_dirs.user_config_path
+        self._handle_missing_config()
         config_location = path.join(config_dir, "config.toml")
+        return config_location
+
+    @staticmethod
+    def _handle_missing_config() -> None:
+        platform_dirs = PlatformDirs("gistqd", "gigsoll")
+        config_dir = platform_dirs.user_config_path
         if not path.exists(config_dir):
             makedirs(config_dir)
-            makedirs(path.join(config_dir, "palettes"))
-        if not path.exists(config_location):
-            shutil.copy("default.toml", config_location)
-        return config_location
+            shutil.copyfile(
+                path.join(path.dirname(path.abspath(__file__)), "default.toml"),
+                path.join(config_dir, "config.toml"),
+            )

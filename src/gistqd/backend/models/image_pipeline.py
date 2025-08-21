@@ -2,9 +2,9 @@ import cv2
 from typing import Self
 from numpy._typing import NDArray
 from PIL import Image
-from backend.helpers.function_timer import function_timer
-from backend.processors.palette_quantizer import PaletteRemaper
-from backend.processors.ordered_dithering import OrdereDithering
+from gistqd.backend.helpers.function_timer import function_timer
+from gistqd.backend.processors.palette_quantizer import PaletteRemaper
+from gistqd.backend.processors.ordered_dithering import OrdereDithering
 
 
 class ImagePipeline:

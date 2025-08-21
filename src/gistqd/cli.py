@@ -2,8 +2,9 @@ import click
 from os import getcwd, path, listdir
 from pathlib import Path
 from platformdirs import user_config_dir
-from backend.models.image_pipeline import ImagePipeline
-from cli.config import Config
+from gistqd.backend.models.image_pipeline import ImagePipeline
+from gistqd.backend.models.palette import Palette
+from gistqd.config import Config
 
 
 @click.group()
@@ -114,7 +115,11 @@ def handle_output_location(input: str, save_dir: str) -> str:
 def handle_palette_list(palette_path) -> tuple[list[str], str]:
     if palette_path == "default":
         palette_path = path.join(user_config_dir("gistqd"), "palettes")
-    files: list[str] = listdir(palette_path)
+    try:
+        files: list[str] = listdir(palette_path)
+    except FileNotFoundError:
+        Palette.handle_missing_palette()
+        files: list[str] = listdir(palette_path)
     names: list[str] = [
         Path(file).stem for file in files if path.splitext(file)[-1] == ".json"
     ]
@@ -143,7 +148,3 @@ def write_image(pipeline: ImagePipeline, config: Config) -> None:
         )
         if to_cwd:
             pipeline.write(handle_output_location(pipeline.in_path, "current"))
-
-
-if __name__ == "__main__":
-    cli()

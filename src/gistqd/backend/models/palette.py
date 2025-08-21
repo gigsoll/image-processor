@@ -2,7 +2,10 @@ from dataclasses import dataclass, field, asdict
 from copy import copy
 import json
 import re
+import shutil
 from typing import Self
+from os import path
+from platformdirs import user_config_dir
 
 
 @dataclass()
@@ -54,8 +57,7 @@ class Palette:
         match = re.match(r"#(?:[0-9a-fA-F]{3}){2}", color)
         if match is None:
             raise ValueError("Incorrect hex, should be #123456")
-        result = list(int(match.group(0).lstrip(
-            "#")[i: i + 2], 16) for i in (0, 2, 4))
+        result = list(int(match.group(0).lstrip("#")[i : i + 2], 16) for i in (0, 2, 4))
         return result
 
     @staticmethod
@@ -79,9 +81,22 @@ class Palette:
         with open(path, "w") as ds:
             json.dump(res_dict, ds, indent=4)
 
-    @staticmethod
-    def read(path: str) -> "Palette":
-        with open(path, "r") as ds:
-            data = json.load(ds)
+    @classmethod
+    def read(cls, pal_path: str) -> "Palette":
+        try:
+            with open(pal_path, "r") as ds:
+                data = json.load(ds)
+        except FileNotFoundError:
+            cls.handle_missing_palette()
+            with open(pal_path, "r") as ds:
+                data = json.load(ds)
+
         data = [data[key] for key in data.keys()]
         return Palette.factory(*data)
+
+    @staticmethod
+    def handle_missing_palette():
+        shutil.copytree(
+            path.abspath(path.join(path.dirname(__file__), "..", "..", "palletes")),
+            path.join(user_config_dir("gistqd"), "palettes"),
+        )

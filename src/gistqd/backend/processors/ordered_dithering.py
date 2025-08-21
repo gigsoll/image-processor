@@ -1,8 +1,8 @@
+import math
 import numpy as np
 from numpy._typing import NDArray
-from backend.helpers.function_timer import function_timer
-import math
-from backend.models.palette import Palette
+from gistqd.backend.helpers.function_timer import function_timer
+from gistqd.backend.models.palette import Palette
 
 
 class OrdereDithering:

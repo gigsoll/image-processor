@@ -3,8 +3,8 @@ import numpy as np
 from numpy._typing import NDArray
 from itertools import product
 
-from backend.helpers.function_timer import function_timer
-from backend.models.palette import Palette
+from gistqd.backend.helpers.function_timer import function_timer
+from gistqd.backend.models.palette import Palette
 
 
 class PaletteRemaper:
