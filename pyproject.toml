@@ -1,7 +1,7 @@
 [project]
 name = "gistqd"
-version = "0.0.5"
-description = "A GTK 4.0 application to quantize any given image based on palette (like catpuccin, nord, etc) or automatically and set it as wallpaper"
+version = "0.1.0"
+description = "A simple CLICK application to style images using palettes or just raw transformations"
 authors = [
     {name = "Anatoliy Dudar", email = "gigsollt@gmail.com"},
 ]
