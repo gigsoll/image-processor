@@ -1,14 +1,14 @@
-# What is gistqd
+[![Static Badge](https://img.shields.io/badge/pip-gistqd-blue)](https://pypi.org/project/gistqd/)
 
 `gistqd` is a simple python CLI tool created to apply retro color effects on images with custom palettes or without them. Currently the following transformations are possible:
 
-- ordered dithering
-- quantization
+- ordered dithering – styles image with grid to reduce number of colors to 8
+- quantization – reduces number of colors
 
 # Example results
 
-![quatize](images/kyiv_poster.jpg)
-![dithering](images/dragon_poster.jpg)
+![quatize](https://raw.githubusercontent.com/gigsoll/image-processor/refs/heads/main/images/kyiv_poster.jpg)
+![dithering](https://raw.githubusercontent.com/gigsoll/image-processor/refs/heads/main/images/dragon_poster.jpg)
 
 # Usage
 

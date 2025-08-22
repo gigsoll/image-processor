@@ -1,0 +1,20 @@
+{
+  "name": "Gruvbox dark",
+  "black": "#282A36",
+  "red": "#BF616A",
+  "green": "#A3BE8C",
+  "yellow": "#EBCB8B",
+  "blue": "#5E81AC",
+  "magenta": "#81A1C1",
+  "cyan": "#8FBCBB",
+  "white": "#ECEFF4",
+  "additional": [
+        "#3B4252",
+        "#434C5E",
+        "#4C566A",
+        "#D8DEE9",
+        "#E5E9F0",
+        "#88C0D0",
+        "#D08770"
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "name": "Dracula",
+  "black": "#282A36",
+  "red": "#FF5555",
+  "green": "#50FA7B",
+  "yellow": "#F1FA8C",
+  "blue": "#6272A4",
+  "magenta": "#BD93F9",
+  "cyan": "#8BE9FD",
+  "white": "#F8F8F2",
+  "additional": [
+        "#44475A",
+        "#FFB86C",
+        "#FF79C6"
+  ]
+}

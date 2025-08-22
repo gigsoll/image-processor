@@ -119,7 +119,6 @@ def handle_palette_list(palette_path) -> tuple[list[str], str]:
         files: list[str] = listdir(palette_path)
     except FileNotFoundError:
         Palette.handle_missing_palette()
-        files: list[str] = listdir(palette_path)
     names: list[str] = [
         Path(file).stem for file in files if path.splitext(file)[-1] == ".json"
     ]
@@ -130,7 +129,7 @@ def validate(config, palette, number, number_bounds, basic) -> None:
     availible_palette, _ = handle_palette_list(config.palette_dir)
     if (palette and palette not in availible_palette) or (not basic and not palette):
         raise ValueError(
-            f"Wrong palette, avalible palettes: {', '.join(availible_palette)}"
+            f"Wrong palette, avalible palettes:\n{'\n'.join(availible_palette)}"
         )
     if number and number not in number_bounds:
         raise ValueError(f"Value is out of bounds, avalible bounds {number_bounds}")

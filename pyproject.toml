@@ -1,6 +1,6 @@
 [project]
 name = "gistqd"
-version = "0.1.0"
+version = "0.1.1"
 description = "A simple CLICK application to style images using palettes or just raw transformations"
 authors = [
     {name = "Anatoliy Dudar", email = "gigsollt@gmail.com"},
