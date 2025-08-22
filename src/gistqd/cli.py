@@ -119,6 +119,7 @@ def handle_palette_list(palette_path) -> tuple[list[str], str]:
         files: list[str] = listdir(palette_path)
     except FileNotFoundError:
         Palette.handle_missing_palette()
+        files: list[str] = listdir(palette_path)
     names: list[str] = [
         Path(file).stem for file in files if path.splitext(file)[-1] == ".json"
     ]

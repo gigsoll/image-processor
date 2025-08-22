@@ -97,6 +97,6 @@ class Palette:
     @staticmethod
     def handle_missing_palette():
         shutil.copytree(
-            path.abspath(path.join(path.dirname(__file__), "..", "..", "palletes")),
+            path.abspath(path.join(path.dirname(__file__), "..", "..", "palettes")),
             path.join(user_config_dir("gistqd"), "palettes"),
         )
